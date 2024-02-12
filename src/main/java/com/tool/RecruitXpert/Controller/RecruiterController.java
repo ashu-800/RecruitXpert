@@ -88,5 +88,6 @@ public class RecruiterController {
         return new ResponseEntity<>(recruiterHomepageResponseDTO,HttpStatus.ACCEPTED);
     }
 
+
 }
 

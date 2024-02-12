@@ -55,6 +55,7 @@
 //                .authenticationProvider(authenticationProvider())
 //                .addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class)
 //                .build();
+
 //    }
 //
 //    @Bean
@@ -75,3 +76,46 @@
 //    }
 ////ashugi
 //}
+
+//        UserDetails user = User.withUsername("John")
+//                .password(encoder.encode("Pwd2"))
+//                .roles("USER","ADMIN","HR")
+//                .build();
+//        return new InMemoryUserDetailsManager(admin, user);
+        return new UserInfoUserDetailsService();
+    }
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        return http.csrf().disable()
+                .authorizeHttpRequests()
+                .requestMatchers("/admin/**","/admin/authenticate").permitAll()
+                .and()
+                .authorizeHttpRequests().requestMatchers("/**,/**")
+                .authenticated().and()
+                .sessionManagement()
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .and()
+                .authenticationProvider(authenticationProvider())
+                .addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class)
+                .build();
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public AuthenticationProvider authenticationProvider(){
+        DaoAuthenticationProvider authenticationProvider=new DaoAuthenticationProvider();
+        authenticationProvider.setUserDetailsService(userDetailsService());
+        authenticationProvider.setPasswordEncoder(passwordEncoder());
+        return authenticationProvider;
+    }
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+        return config.getAuthenticationManager();
+    }
+}
+
